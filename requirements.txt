@@ -1,0 +1,11 @@
+requests
+numpy
+pandas
+pillow
+opencv-python
+matplotlib
+scikit-learn
+h5py
+tqdm
+python-dotenv
+astropy
