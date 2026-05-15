@@ -46,18 +46,26 @@ def build_initial_catalog(max_subhalos=5000, page_size=100):
 
             try:
                 sub = fetch_subhalo_detail(item["url"])
-
+                
+                # Safely get parent halo URL
+                if "related" not in sub or "parent_halo" not in sub.get("related", {}):
+                    continue
+                    
                 parent_halo_url = sub["related"]["parent_halo"]
                 parent = fetch_parent_halo_info(parent_halo_url)
-
-                # Handle case where "Group" key may not exist
-                group = parent.get("Group", {})
-                if not group:
-                    # Try alternative structure
-                    group = parent
+                
+                # Handle various response structures from API
+                if isinstance(parent, dict):
+                    if "Group" in parent:
+                        group = parent["Group"]
+                    else:
+                        # Try using parent directly if it has group properties
+                        group = parent
+                else:
+                    continue
                 
                 # Skip if we can't get required halo info
-                if not group.get("GroupNsubs"):
+                if not isinstance(group, dict) or not group.get("GroupNsubs"):
                     continue
 
                 row = {
@@ -65,11 +73,11 @@ def build_initial_catalog(max_subhalos=5000, page_size=100):
                     "snapshot": SNAPSHOT,
                     "redshift": 0.0,
 
-                    "subhalo_id": sub["id"],
-                    "halo_id": sub["grnr"],
+                    "subhalo_id": sub.get("id"),
+                    "halo_id": sub.get("grnr"),
                     "is_central": int(sub.get("primary_flag", 0)),
 
-                    "subhalo_url": sub["meta"]["url"],
+                    "subhalo_url": sub.get("meta", {}).get("url"),
                     "parent_halo_url": parent_halo_url,
 
                     # Posición del subhalo
@@ -83,9 +91,7 @@ def build_initial_catalog(max_subhalos=5000, page_size=100):
                     "gas_mass_api": sub.get("mass_gas"),
                     "sfr": sub.get("sfr"),
 
-                    # Propiedades del halo padre.
-                    # El nombre exacto puede variar según endpoint/catálogo,
-                    # por eso guardamos el diccionario base también si hace falta.
+                    # Propiedades del halo padre
                     "group_m_crit200": group.get("Group_M_Crit200"),
                     "group_m_mean200": group.get("Group_M_Mean200"),
                     "group_first_sub": group.get("GroupFirstSub"),
@@ -96,9 +102,11 @@ def build_initial_catalog(max_subhalos=5000, page_size=100):
 
                 rows.append(row)
                 
+            except KeyError as e:
+                # Skip subhalos with missing required keys
+                continue
             except Exception as e:
-                # Skip problematic entries with detailed error info
-                print(f"  ⚠️  Skipping subhalo (error: {type(e).__name__})")
+                # Skip any other problematic entries
                 continue
 
         offset += page_size
