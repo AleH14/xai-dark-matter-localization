@@ -3,22 +3,8 @@ import sys
 from pathlib import Path
 from dotenv import load_dotenv
 
-# Auto-setup Colab environment if running in Colab
-try:
-    from google.colab import drive
-    _is_colab = True
-except ImportError:
-    _is_colab = False
-
-if _is_colab:
-    # Mount Google Drive
-    drive.mount('/content/drive', force_remount=False)
-    # Change to project directory
-    _project_path = "/content/drive/MyDrive/xai-dark-matter-localization"
-    os.chdir(_project_path)
-    # Add to path
-    if _project_path not in sys.path:
-        sys.path.insert(0, _project_path)
+# Note: Colab setup should be done in notebook first cell explicitly
+# This allows better error handling and visibility
 
 load_dotenv()
 
