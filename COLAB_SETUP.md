@@ -2,17 +2,9 @@
 
 ## Preparación Inicial (Una sola vez)
 
-### 1. **Monta Google Drive en Colab**
+### 1. **Clona el repositorio**
+
 En la primera celda de tu notebook de Colab:
-
-```python
-from google.colab import drive
-drive.mount('/content/drive')
-```
-
-Autoriza el acceso cuando se pida.
-
-### 2. **Clona el repositorio**
 
 ```bash
 cd /content/drive/MyDrive
@@ -20,7 +12,7 @@ git clone https://github.com/tu-usuario/xai-dark-matter-localization.git
 cd xai-dark-matter-localization
 ```
 
-### 3. **Instala dependencias**
+### 2. **Instala dependencias**
 
 ```bash
 pip install -r requirements.txt
@@ -34,17 +26,38 @@ Esto instalará:
 - `scikit-image` (visión por computadora)
 - etc.
 
-### 4. **Verifica la configuración**
+---
+
+## Setup Automático en Cada Notebook
+
+### Opción 1: Setup Automático (Recomendado) ✅
+
+El proyecto está configurado para hacer setup automático en Colab. **Solo importa config.py:**
 
 ```python
-import sys
-sys.path.append('/content/drive/MyDrive/xai-dark-matter-localization')
-
 from src.config import DATA_ROOT, TNG_API_KEY, DATASET_DIR
-print(f"DATA_ROOT: {DATA_ROOT}")
-print(f"DATASET_DIR: {DATASET_DIR}")
-print(f"API KEY configurada: {TNG_API_KEY is not None}")
+
+print(f"✓ Colab setup completado automáticamente")
+print(f"Working directory: {DATA_ROOT}")
+print(f"Dataset directory: {DATASET_DIR}")
 ```
+
+Esto automáticamente:
+- ✓ Monta Google Drive
+- ✓ Cambia al directorio del proyecto
+- ✓ Configura las rutas correctas
+
+### Opción 2: Setup Explícito
+
+Si prefieres control explícito, usa:
+
+```python
+from src.colab_setup import setup_colab
+
+setup_colab(verbose=True)
+```
+
+Esto te mostrará toda la información del setup.
 
 ---
 
