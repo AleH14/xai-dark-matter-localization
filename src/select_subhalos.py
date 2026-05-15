@@ -45,68 +45,69 @@ def build_initial_catalog(max_subhalos=5000, page_size=100):
                 break
 
             try:
+                # Fetch subhalo details
                 sub = fetch_subhalo_detail(item["url"])
                 
-                # Safely get parent halo URL
-                if "related" not in sub or "parent_halo" not in sub.get("related", {}):
+                # Validate basic subhalo structure
+                if not isinstance(sub, dict):
                     continue
                     
-                parent_halo_url = sub["related"]["parent_halo"]
-                parent = fetch_parent_halo_info(parent_halo_url)
-                
-                # Handle various response structures from API
-                if isinstance(parent, dict):
-                    if "Group" in parent:
-                        group = parent["Group"]
-                    else:
-                        # Try using parent directly if it has group properties
-                        group = parent
-                else:
+                # Try to get parent halo info
+                try:
+                    if "related" not in sub:
+                        continue
+                    parent_halo_url = sub.get("related", {}).get("parent_halo")
+                    if not parent_halo_url:
+                        continue
+                        
+                    parent_data = fetch_parent_halo_info(parent_halo_url)
+                except:
                     continue
                 
-                # Skip if we can't get required halo info
-                if not isinstance(group, dict) or not group.get("GroupNsubs"):
+                # Extract group information - try different keys
+                group = None
+                if isinstance(parent_data, dict):
+                    if "Group" in parent_data:
+                        group = parent_data["Group"]
+                    elif any(key.startswith("Group") for key in parent_data.keys()):
+                        # Parent data is directly the group
+                        group = parent_data
+                
+                if not group or not isinstance(group, dict):
+                    continue
+                
+                # Verify we have required group properties
+                if not group.get("GroupNsubs"):
                     continue
 
+                # Build row with safe .get() everywhere
                 row = {
                     "simulation": "TNG100-1",
                     "snapshot": SNAPSHOT,
                     "redshift": 0.0,
-
                     "subhalo_id": sub.get("id"),
                     "halo_id": sub.get("grnr"),
                     "is_central": int(sub.get("primary_flag", 0)),
-
                     "subhalo_url": sub.get("meta", {}).get("url"),
                     "parent_halo_url": parent_halo_url,
-
-                    # Posición del subhalo
                     "pos_x": sub.get("pos_x"),
                     "pos_y": sub.get("pos_y"),
                     "pos_z": sub.get("pos_z"),
-
-                    # Masas disponibles desde el subhalo
                     "mass_log_msun": sub.get("mass_log_msun"),
                     "stellar_mass_api": sub.get("mass_stars"),
                     "gas_mass_api": sub.get("mass_gas"),
                     "sfr": sub.get("sfr"),
-
-                    # Propiedades del halo padre
                     "group_m_crit200": group.get("Group_M_Crit200"),
                     "group_m_mean200": group.get("Group_M_Mean200"),
                     "group_first_sub": group.get("GroupFirstSub"),
                     "group_nsubs": group.get("GroupNsubs"),
-
                     "quality_flag": 1
                 }
 
                 rows.append(row)
                 
-            except KeyError as e:
-                # Skip subhalos with missing required keys
-                continue
             except Exception as e:
-                # Skip any other problematic entries
+                # Silently skip any problematic entries
                 continue
 
         offset += page_size
