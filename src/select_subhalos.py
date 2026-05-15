@@ -1,6 +1,6 @@
 import pandas as pd
 from tqdm import tqdm
-from tng_api import get_json
+from .tng_api import get_json
 
 BASE_URL = "https://www.tng-project.org/api/TNG100-1"
 SNAPSHOT = 99

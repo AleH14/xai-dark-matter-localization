@@ -1,7 +1,7 @@
 import pandas as pd
 from pathlib import Path
 from tqdm import tqdm
-from tng_api import download_file
+from .tng_api import download_file
 
 DATASET_DIR = Path("data/processed/TNG-DM-XAI-v1")
 RAW_IMAGE_DIR = Path("data/raw/tng/images_mock")

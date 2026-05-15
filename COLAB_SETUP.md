@@ -30,34 +30,43 @@ Esto instalará:
 
 ## Setup Automático en Cada Notebook
 
-### Opción 1: Setup Automático (Recomendado) ✅
+### ✅ Pasos recomendados:
 
-El proyecto está configurado para hacer setup automático en Colab. **Solo importa config.py:**
-
-```python
-from src.config import DATA_ROOT, TNG_API_KEY, DATASET_DIR
-
-print(f"✓ Colab setup completado automáticamente")
-print(f"Working directory: {DATA_ROOT}")
-print(f"Dataset directory: {DATASET_DIR}")
-```
-
-Esto automáticamente:
-- ✓ Monta Google Drive
-- ✓ Cambia al directorio del proyecto
-- ✓ Configura las rutas correctas
-
-### Opción 2: Setup Explícito
-
-Si prefieres control explícito, usa:
+**Celda 1 - Setup de Colab:**
 
 ```python
-from src.colab_setup import setup_colab
+# Setup Colab environment
+import os
+import sys
+from pathlib import Path
 
-setup_colab(verbose=True)
+# Mount Google Drive
+from google.colab import drive
+drive.mount('/content/drive', force_remount=False)
+
+# Change to project directory
+project_path = '/content/drive/MyDrive/xai-dark-matter-localization'
+os.chdir(project_path)
+
+# Add to Python path
+if project_path not in sys.path:
+    sys.path.insert(0, project_path)
+
+print(f"✓ Working directory: {os.getcwd()}")
 ```
 
-Esto te mostrará toda la información del setup.
+**Celda 2 - Importar módulos del proyecto:**
+
+```python
+# Now import project modules
+from src.config import DATA_ROOT, DATASET_DIR, TNG_API_KEY
+from src.select_subhalos import build_initial_catalog
+# ... other imports as needed
+
+print("✓ All modules loaded successfully")
+```
+
+Listo. Ya puedes usar todos los módulos sin problemas.
 
 ---
 
