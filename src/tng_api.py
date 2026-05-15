@@ -19,9 +19,16 @@ HEADERS = {
 def get_json(url, params=None, retries=3, sleep=1):
     """
     Hace una petición GET a la API y devuelve JSON.
+    TNG-100 API requires api_key as query parameter, not header.
     """
+    if params is None:
+        params = {}
+    
+    # Add API key as query parameter (TNG-100 requirement)
+    params['api_key'] = API_KEY
+    
     for attempt in range(retries):
-        response = requests.get(url, headers=HEADERS, params=params)
+        response = requests.get(url, params=params)
 
         if response.status_code == 200:
             return response.json()
@@ -36,6 +43,7 @@ def download_file(url, output_path, params=None, retries=3, sleep=1):
     """
     Descarga archivo desde la API.
     Sirve para PNG, HDF5, FITS, etc.
+    TNG-100 API requires api_key as query parameter, not header.
     """
     output_path = Path(output_path)
     output_path.parent.mkdir(parents=True, exist_ok=True)
@@ -43,8 +51,14 @@ def download_file(url, output_path, params=None, retries=3, sleep=1):
     if output_path.exists():
         return output_path
 
+    if params is None:
+        params = {}
+    
+    # Add API key as query parameter (TNG-100 requirement)
+    params['api_key'] = API_KEY
+
     for attempt in range(retries):
-        response = requests.get(url, headers=HEADERS, params=params, stream=True)
+        response = requests.get(url, params=params, stream=True)
 
         if response.status_code == 200:
             with open(output_path, "wb") as f:
