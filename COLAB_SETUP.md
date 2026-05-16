@@ -87,7 +87,7 @@ print(response.status_code)  # Debe ser 200
 
 ### **Paso 2: Seleccionar Subhalos (02_select_subhalos.ipynb)**
 
-Selecciona los subhalos de materia oscura a procesar:
+Selecciona subhalos y metadatos físicos relacionados con sus halos:
 
 ```python
 # Carga y filtra subhalos del catálogo TNG
@@ -125,18 +125,20 @@ Normaliza y redimensiona las imágenes:
 **Tiempo estimado:** 10-20 minutos  
 **Salida:** `data/processed/TNG-DM-XAI-v1/images_224/` y `images_512/`
 
-### **Paso 5: Crear Masks (05_build_masks.ipynb)**
+### **Paso 5: Crear Máscaras de Análisis Espacial (05_build_masks.ipynb)**
 
-Genera máscaras de segmentación para materia oscura:
+Genera máscaras de análisis espacial para estudiar la distribución de atribución:
 
 ```python
-# Identifica píxeles de materia oscura
-# Crea máscaras binarias
+# Define regiones radiales: centro, zona media y zona externa
+# Crea máscaras binarias de análisis, no etiquetas físicas de materia oscura
 # Asigna a splits correspondientes
 ```
 
 **Tiempo estimado:** 15-30 minutos  
 **Salida:** `data/processed/TNG-DM-XAI-v1/masks/`
+
+Estas máscaras no representan ubicaciones reales de materia oscura. El proyecto identifica regiones de la imagen que contienen información predictiva asociada a propiedades físicas relacionadas con halos de materia oscura.
 
 ### **Paso 6: Estadísticas (06_dataset_statistics.ipynb)**
 
